@@ -267,7 +267,9 @@ namespace langutil
 	T(Illegal, "ILLEGAL", 0)                                           \
 	\
 	/* Scanner-internal use only. */                                   \
-	T(Whitespace, nullptr, 0)
+	T(Whitespace, nullptr, 0)                                          \
+    \
+	K(Gastest, "gastest",0)
 
 // All token values.
 // attention! msvc issue:

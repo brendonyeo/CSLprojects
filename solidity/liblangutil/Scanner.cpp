@@ -856,6 +856,7 @@ Token Scanner::scanNumber(char _charSeen)
 
 tuple<Token, unsigned, unsigned> Scanner::scanIdentifierOrKeyword()
 {
+	cout<<"program test: gastest?"<<m_nextToken.literal=="gastest"<<endl;
 	solAssert(isIdentifierStart(m_char), "");
 	LiteralScope literal(this, LITERAL_TYPE_STRING);
 	addLiteralCharAndAdvance();
