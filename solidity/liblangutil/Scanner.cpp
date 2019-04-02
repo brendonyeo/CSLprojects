@@ -594,6 +594,7 @@ void Scanner::scanToken()
 			token = selectToken(Token::BitNot);
 			break;
 		default:
+		    // cout<<"program test: default handling"<<endl;
 			if (isIdentifierStart(m_char))
 			{
 				tie(token, m, n) = scanIdentifierOrKeyword();
@@ -620,6 +621,7 @@ void Scanner::scanToken()
 				token = Token::EOS;
 			else
 				token = selectErrorToken(ScannerError::IllegalToken);
+			// cout<<"program test: default handling done"<<endl;
 			break;
 		}
 		// Continue scanning for tokens as long as we're just skipping
@@ -856,7 +858,8 @@ Token Scanner::scanNumber(char _charSeen)
 
 tuple<Token, unsigned, unsigned> Scanner::scanIdentifierOrKeyword()
 {
-	cout<<"program test: gastest?"<<m_nextToken.literal=="gastest"<<endl;
+	// cout<<"program test: gastest?"<<m_currentToken.literal<<strcmp(m_nextToken.literal.c_str(),"gastest")<<endl;
+	// cout<<m_char<<endl;
 	solAssert(isIdentifierStart(m_char), "");
 	LiteralScope literal(this, LITERAL_TYPE_STRING);
 	addLiteralCharAndAdvance();
@@ -864,6 +867,7 @@ tuple<Token, unsigned, unsigned> Scanner::scanIdentifierOrKeyword()
 	while (isIdentifierPart(m_char)) //get full literal
 		addLiteralCharAndAdvance();
 	literal.complete();
+	// cout<<m_nextToken.literal<<endl;
 	return TokenTraits::fromIdentifierOrKeyword(m_nextToken.literal);
 }
 

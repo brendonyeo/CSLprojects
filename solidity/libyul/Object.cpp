@@ -53,7 +53,8 @@ string Object::toString(bool _yul) const
 {
 	yulAssert(code, "No code");
 	string inner = "code " + AsmPrinter{_yul}(*code);
-
+    
+	cout<<__FILE__<<__LINE__<<"Object::toString(bool _yul)"<<endl;
 	for (auto const& obj: subObjects)
 		inner += "\n" + obj->toString(_yul);
 

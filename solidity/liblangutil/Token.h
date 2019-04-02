@@ -141,6 +141,10 @@ namespace langutil
 	K(Delete, "delete", 0)                                             \
 	\
 	/* Inline Assembly Operators */                                    \
+	    \
+	K(Gastest, "gastest",0)                                           \
+	K(Gasstart, "gasstart",0)                                           \
+	K(Gasstop, "gasstop",0)                                           \
 	T(AssemblyAssign, ":=", 2)                                         \
 	/* Keywords */                                                     \
 	K(Anonymous, "anonymous", 0)                                       \
@@ -267,9 +271,8 @@ namespace langutil
 	T(Illegal, "ILLEGAL", 0)                                           \
 	\
 	/* Scanner-internal use only. */                                   \
-	T(Whitespace, nullptr, 0)                                          \
-    \
-	K(Gastest, "gastest",0)
+	T(Whitespace, nullptr, 0)                                          
+
 
 // All token values.
 // attention! msvc issue:

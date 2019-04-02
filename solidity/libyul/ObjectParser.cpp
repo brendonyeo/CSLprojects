@@ -33,6 +33,7 @@ using namespace std;
 
 shared_ptr<Object> ObjectParser::parse(shared_ptr<Scanner> const& _scanner, bool _reuseScanner)
 {
+	// cout<<"ObjectParser::parse"<<endl;
 	m_recursionDepth = 0;
 	try
 	{
@@ -51,6 +52,7 @@ shared_ptr<Object> ObjectParser::parse(shared_ptr<Scanner> const& _scanner, bool
 			object = parseObject();
 		if (object && !_reuseScanner)
 			expectToken(Token::EOS);
+		// cout<<"ObjectParser::parse done"<<endl;
 		return object;
 	}
 	catch (FatalError const&)
@@ -58,11 +60,13 @@ shared_ptr<Object> ObjectParser::parse(shared_ptr<Scanner> const& _scanner, bool
 		if (m_errorReporter.errors().empty())
 			throw; // Something is weird here, rather throw again.
 	}
+	
 	return nullptr;
 }
 
 shared_ptr<Object> ObjectParser::parseObject(Object* _containingObject)
 {
+	// cout<<"ObjectParser::parseObject"<<endl;
 	RecursionGuard guard(*this);
 
 	if (currentToken() != Token::Identifier || currentLiteral() != "object")
@@ -89,29 +93,33 @@ shared_ptr<Object> ObjectParser::parseObject(Object* _containingObject)
 		addNamedSubObject(*_containingObject, ret->name, ret);
 
 	expectToken(Token::RBrace);
-
+    // cout<<"done"<<endl;
 	return ret;
 }
 
 shared_ptr<Block> ObjectParser::parseCode()
 {
+	// cout<<"ObjectParser::parseObject"<<endl;
 	if (currentToken() != Token::Identifier || currentLiteral() != "code")
 		fatalParserError("Expected keyword \"code\".");
 	advance();
-
+    // cout<<"done"<<endl;
 	return parseBlock();
 }
 
 shared_ptr<Block> ObjectParser::parseBlock()
 {
+	// cout<<"ObjectParser::parseBlock"<<endl;
 	Parser parser(m_errorReporter, m_dialect);
 	shared_ptr<Block> block = parser.parse(m_scanner, true);
 	yulAssert(block || m_errorReporter.hasErrors(), "Invalid block but no error!");
+	// cout<<"ObjectParser::parseBlock done"<<endl;
 	return block;
 }
 
 void ObjectParser::parseData(Object& _containingObject)
 {
+	// cout<<"ObjectParser::parseData"<<endl;
 	solAssert(
 		currentToken() == Token::Identifier && currentLiteral() == "data",
 		"parseData called on wrong input."
@@ -123,10 +131,12 @@ void ObjectParser::parseData(Object& _containingObject)
 	expectToken(Token::StringLiteral, false);
 	addNamedSubObject(_containingObject, name, make_shared<Data>(name, asBytes(currentLiteral())));
 	advance();
+	// cout<<"done"<<endl;
 }
 
 YulString ObjectParser::parseUniqueName(Object const* _containingObject)
 {
+	// cout<<"ObjectParser::parseUniqueName"<<endl;
 	expectToken(Token::StringLiteral, false);
 	YulString name{currentLiteral()};
 	if (name.empty())
@@ -136,6 +146,7 @@ YulString ObjectParser::parseUniqueName(Object const* _containingObject)
 	else if (_containingObject && _containingObject->subIndexByName.count(name))
 		parserError("Object name \"" + name.str() + "\" already exists inside the containing object.");
 	advance();
+	// cout<<"done"<<endl;
 	return name;
 }
 

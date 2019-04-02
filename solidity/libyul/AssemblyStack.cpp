@@ -109,6 +109,7 @@ bool AssemblyStack::analyzeParsed(Object& _object)
 		if (auto subObject = dynamic_cast<Object*>(subNode.get()))
 			if (!analyzeParsed(*subObject))
 				success = false;
+	cout<<"analyzeParsed "<<(success?"success":"fail")<<endl;
 	return success;
 }
 
@@ -175,8 +176,11 @@ MachineAssemblyObject AssemblyStack::assemble(Machine _machine, bool _optimize) 
 
 string AssemblyStack::print() const
 {
+	cout<<"parseResult:"<<((m_parserResult!=nullptr)?"exists":"none")<<endl;
+	cout<<"code:"<<((m_parserResult->code!=nullptr)?"exists":"missing")<<endl;
 	solAssert(m_parserResult, "");
 	solAssert(m_parserResult->code, "");
+	
 	return m_parserResult->toString(m_language == Language::Yul) + "\n";
 }
 

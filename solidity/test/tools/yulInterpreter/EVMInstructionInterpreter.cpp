@@ -104,6 +104,12 @@ u256 EVMInstructionInterpreter::eval(
 	auto const& arg = _arguments;
 	switch (_instruction)
 	{
+    case Instruction::GASTEST:
+	    return 0;
+	case Instruction::GASSTART:
+	    return 0;
+	case Instruction::GASSTOP:
+	    return 0;
 	case Instruction::STOP:
 		throw InterpreterTerminated();
 	// --------------- arithmetic ---------------

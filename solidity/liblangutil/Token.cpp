@@ -139,6 +139,7 @@ int parseSize(string::const_iterator _begin, string::const_iterator _end)
 
 static Token keywordByName(string const& _name)
 {
+	// cout<<"keywordByName:"<<_name<<endl;
 	// The following macros are used inside TOKEN_LIST and cause non-keyword tokens to be ignored
 	// and keywords to be put inside the keywords variable.
 #define KEYWORD(name, string, precedence) {string, Token::name},
@@ -146,7 +147,18 @@ static Token keywordByName(string const& _name)
 	static map<string, Token> const keywords({TOKEN_LIST(TOKEN, KEYWORD)});
 #undef KEYWORD
 #undef TOKEN
+ 
 	auto it = keywords.find(_name);
+	// cout<<_name<<":"<<((it!=keywords.end())?"keyword":"non-keyword")<<endl;
+	// if(strcmp(_name.c_str(),"gastest")==0){
+	// 	   for(auto iter=keywords.begin();iter!=keywords.end();++iter){
+	// 	    cout<<iter->first<<endl;
+	//    }
+	// 	// auto it2 = keywords.find("gastest");
+	// 	// cout<<"gastest:"<<(it2==keywords.end())<<endl;
+	// 	auto it2 = keywords.find("address");
+	// 	cout<<"address exist?:"<<(it2==keywords.end())<<endl;
+	// }
 	return it == keywords.end() ? Token::Identifier : it->second;
 }
 

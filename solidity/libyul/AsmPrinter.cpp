@@ -42,6 +42,7 @@ using namespace dev::solidity;
 
 string AsmPrinter::operator()(yul::Instruction const& _instruction) const
 {
+	cout<<__FILE__<<__LINE__<<instructionInfo(_instruction.instruction).name<<endl;
 	solAssert(!m_yul, "");
 	solAssert(isValidInstruction(_instruction.instruction), "Invalid instruction");
 	return boost::to_lower_copy(instructionInfo(_instruction.instruction).name);
@@ -238,6 +239,7 @@ string AsmPrinter::operator()(Block const& _block) const
 {
 	if (_block.statements.empty())
 		return "{\n}";
+	// cout<<__FILE__<<__LINE__<<"string AsmPrinter::operator()(Block const& _block) const"<<endl;
 	string body = boost::algorithm::join(
 		_block.statements | boost::adaptors::transformed(boost::apply_visitor(*this)),
 		"\n"

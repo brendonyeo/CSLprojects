@@ -1,0 +1,48 @@
+analyzeParsed success
+
+======= ../../examples/C.evm_origin (EVM 1.5) =======
+
+Pretty printed source:
+parseResult:exists
+code:exists
+/home/liuye/Projects/CSLprojects/solidity/libyul/Object.cpp57Object::toString(bool _yul)
+object "object" {
+    code {
+        mstore(0x40, 0x60)
+        switch div(calldataload(0), exp(2, 226))
+        case 0xb3de648b {
+            let r := f(calldataload(4))
+            let ret := $allocate(0x20)
+            mstore(ret, r)
+            return(ret, 0x20)
+        }
+        default {
+            revert(0, 0)
+        }
+        function $allocate(size) -> pos
+        {
+            pos := mload(0x40)
+            mstore(0x40, add(pos, size))
+        }
+        function f(x) -> y
+        {
+            y := 1
+            for {
+                let i := 0
+            }
+            lt(i, x)
+            {
+                i := add(i, 1)
+            }
+            {
+                y := mul(2, y)
+            }
+        }
+    }
+}
+
+
+Binary representation:
+606060405260e260020a6000350463b3de648b8114b10000002460006000fdb00000003d5b600435b30000005b6020b300000044818152602081f350505b50b000000055b5600060405190508181016040529050b75bb000000085b560006001905060005b82811015b1000000808160020291505b600181019050b0000000645b509050b75b
+
+Text representation:

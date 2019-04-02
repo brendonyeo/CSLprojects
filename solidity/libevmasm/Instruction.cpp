@@ -92,6 +92,11 @@ std::map<std::string, Instruction> const dev::solidity::c_instructions =
 	{ "MSIZE", Instruction::MSIZE },
 	{ "GAS", Instruction::GAS },
 	{ "JUMPDEST", Instruction::JUMPDEST },
+	
+	{ "GASTEST", Instruction::GASTEST },
+	{ "GASSTART", Instruction::GASSTART },
+	{ "GASSTOP", Instruction::GASSTOP },
+
 	{ "PUSH1", Instruction::PUSH1 },
 	{ "PUSH2", Instruction::PUSH2 },
 	{ "PUSH3", Instruction::PUSH3 },
@@ -236,6 +241,12 @@ static std::map<Instruction, InstructionInfo> const c_instructionInfo =
 	{ Instruction::MSIZE,		{ "MSIZE",			0, 0, 1, false, Tier::Base } },
 	{ Instruction::GAS,			{ "GAS",			0, 0, 1, false, Tier::Base } },
 	{ Instruction::JUMPDEST,	{ "JUMPDEST",		0, 0, 0, true, Tier::Special } },
+	
+
+	{ Instruction::GASTEST,			{ "GASTEST",			0, 0, 0, false, Tier::Zero } },
+	{ Instruction::GASSTART,			{ "GASSTART",			0, 0, 0, false, Tier::Zero } },
+	{ Instruction::GASSTOP,			{ "GASSTOP",			0, 0, 0, false, Tier::Zero } },
+
 	{ Instruction::PUSH1,		{ "PUSH1",			1, 0, 1, false, Tier::VeryLow } },
 	{ Instruction::PUSH2,		{ "PUSH2",			2, 0, 1, false, Tier::VeryLow } },
 	{ Instruction::PUSH3,		{ "PUSH3",			3, 0, 1, false, Tier::VeryLow } },
@@ -365,6 +376,7 @@ string dev::solidity::disassemble(bytes const& _mem)
 
 InstructionInfo dev::solidity::instructionInfo(Instruction _inst)
 {
+
 	try
 	{
 		return c_instructionInfo.at(_inst);

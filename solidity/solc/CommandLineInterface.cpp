@@ -1279,6 +1279,8 @@ bool CommandLineInterface::assemble(
 
 	if (!successful)
 		return false;
+    
+    // sout()<<"analysis process done"<<endl;
 
 	for (auto const& src: m_sourceCodes)
 	{

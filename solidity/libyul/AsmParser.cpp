@@ -38,6 +38,7 @@ using namespace dev::solidity;
 
 shared_ptr<Block> Parser::parse(std::shared_ptr<Scanner> const& _scanner, bool _reuseScanner)
 {
+	// cout<<__FILE__<<"Parser::parse"<<endl;
 	m_recursionDepth = 0;
 	try
 	{
@@ -45,6 +46,7 @@ shared_ptr<Block> Parser::parse(std::shared_ptr<Scanner> const& _scanner, bool _
 		auto block = make_shared<Block>(parseBlock());
 		if (!_reuseScanner)
 			expectToken(Token::EOS);
+		// cout<<__FILE__<<"Parser::parse done"<<endl;
 		return block;
 	}
 	catch (FatalError const&)
@@ -386,6 +388,9 @@ Parser::ElementaryOperation Parser::parseElementaryOperation()
 	case Token::Return:
 	case Token::Byte:
 	case Token::Address:
+	case Token::Gastest:
+	case Token::Gasstart:
+	case Token::Gasstop:
 	{
 		YulString literal;
 		if (currentToken() == Token::Return)
@@ -394,6 +399,13 @@ Parser::ElementaryOperation Parser::parseElementaryOperation()
 			literal = "byte"_yulstring;
 		else if (currentToken() == Token::Address)
 			literal = "address"_yulstring;
+		else if (currentToken() == Token::Gastest)
+		    literal = "gastest"_yulstring;
+		else if (currentToken() == Token::Gasstart)
+		    literal = "gasstart"_yulstring;
+		else if (currentToken() == Token::Gasstop)
+		    literal = "gasstop"_yulstring;
+
 		else
 			literal = YulString{currentLiteral()};
 		// first search the set of builtins, then the instructions.
