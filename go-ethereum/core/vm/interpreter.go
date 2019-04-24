@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
+// ## No changes were made to this file ##.
+
 package vm
 
 import (
@@ -40,7 +42,7 @@ type Config struct {
 	// JumpTable contains the EVM instruction table. This
 	// may be left uninitialised and will be set to the default
 	// table.
-	JumpTable [256]operation
+	JumpTable [256]operation // B: Declaration found in core/vm/jump_table.go
 
 	// Type of the EWASM interpreter
 	EWASMInterpreter string
@@ -177,8 +179,10 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		defer func() {
 			if err != nil {
 				if !logged {
+					// B: if not logged then log?
 					in.cfg.Tracer.CaptureState(in.evm, pcCopy, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 				} else {
+					// B: if logged then record a fault?
 					in.cfg.Tracer.CaptureFault(in.evm, pcCopy, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 				}
 			}
@@ -191,15 +195,18 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	for atomic.LoadInt32(&in.evm.abort) == 0 {
 		if in.cfg.Debug {
 			// Capture pre-execution values for tracing.
+			// B: Just making a copy of all the data, logged = false since not logged
 			logged, pcCopy, gasCopy = false, pc, contract.Gas
 		}
 
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
-		op = contract.GetOp(pc)
+		op = contract.GetOp(pc) // B: get current operation (code)
+                fmt.Printf("PRINT OPCODE:%s\n",op)
 		operation := in.cfg.JumpTable[op]
-		if !operation.valid {
-			return nil, fmt.Errorf("invalid opcode 0x%x", int(op))
+		if !operation.valid { // B: checking to see if it is a valid opcode, by checking against a bool variable.
+			 fmt.Printf("invalid opcode 0x%x\n", []byte{byte(op)})
+                         return nil, fmt.Errorf("invalid opcode 0x%x", int(op))
 		}
 		// Validate stack
 		if sLen := stack.len(); sLen < operation.minStack {
@@ -219,7 +226,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			}
 		}
 		// Static portion of gas
-		if !contract.UseGas(operation.constantGas) {
+		if !contract.UseGas(operation.constantGas, disableGas) {
 			return nil, ErrOutOfGas
 		}
 
@@ -244,15 +251,18 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		// cost is explicitly set so that the capture state defer method can get the proper cost
 		if operation.dynamicGas != nil {
 			cost, err = operation.dynamicGas(in.gasTable, in.evm, contract, stack, mem, memorySize)
-			if err != nil || !contract.UseGas(cost) {
+			if err != nil || !contract.UseGas(cost, disableGas) { // B: declaration in core/vm/contract.go, false means failure.
+				// B: enter this loop if there is error or not enough gas
+				// B: core/vm/contract.go > func (c *Contract) UseGas(gas uint64) (ok bool)
 				return nil, ErrOutOfGas
 			}
-		}
+		} // B: No error
 		if memorySize > 0 {
 			mem.Resize(memorySize)
 		}
 
 		if in.cfg.Debug {
+			// B: Might the current state affect?
 			in.cfg.Tracer.CaptureState(in.evm, pc, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 			logged = true
 		}
@@ -266,14 +276,16 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 		// if the operation clears the return data (e.g. it has returning data)
 		// set the last return to the result of the operation.
+		// B: if operation.returns bool flag is true, means there's return values
+		// B: hence retrieve return data and assign it.
 		if operation.returns {
 			in.returnData = res
 		}
 
 		switch {
-		case err != nil:
+		case err != nil: // B: if error
 			return nil, err
-		case operation.reverts:
+		case operation.reverts: // B: to find out whether an error will revert, and if so, why we need check err then revert?
 			return res, errExecutionReverted
 		case operation.halts:
 			return res, nil

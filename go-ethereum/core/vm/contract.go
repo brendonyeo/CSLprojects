@@ -27,6 +27,8 @@ type ContractRef interface {
 	Address() common.Address
 }
 
+var disableGas bool = true // true means to disable
+
 // AccountRef implements ContractRef.
 //
 // Account references are used during EVM initialisation and
@@ -149,12 +151,15 @@ func (c *Contract) Caller() common.Address {
 }
 
 // UseGas attempts the use gas and subtracts it and returns true on success
-func (c *Contract) UseGas(gas uint64) (ok bool) {
-	if c.Gas < gas {
-		return false
+func (c *Contract) UseGas(gas uint64, disableGas bool) (ok bool) {
+	if !disableGas { // B: if gas is enabled, go through normal process of reduction.
+		if c.Gas < gas {
+			return false
+		}
+		c.Gas -= gas
+		return true
 	}
-	c.Gas -= gas
-	return true
+	return true // B: else, straightaway return true without reducing gas available.
 }
 
 // Address returns the contracts address

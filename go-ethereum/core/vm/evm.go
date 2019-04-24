@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
+// ## No changes were made to this file ##.
 package vm
 
 import (
@@ -61,7 +62,7 @@ func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, err
 				}(evm.interpreter)
 				evm.interpreter = interpreter
 			}
-			return interpreter.Run(contract, input, readOnly)
+			return interpreter.Run(contract, input, readOnly) // B: Executes the contract code
 		}
 	}
 	return nil, ErrNoCompatibleInterpreter
@@ -170,7 +171,7 @@ func (evm *EVM) Cancel() {
 }
 
 // Interpreter returns the current interpreter
-func (evm *EVM) Interpreter() Interpreter {
+func (evm *EVM) Interpreter() Interpreter { // B: defined in core/vm/interpreter.go
 	return evm.interpreter
 }
 
@@ -180,16 +181,16 @@ func (evm *EVM) Interpreter() Interpreter {
 // execution error or failed value transfer.
 func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas uint64, value *big.Int) (ret []byte, leftOverGas uint64, err error) {
 	if evm.vmConfig.NoRecursion && evm.depth > 0 {
-		return nil, gas, nil
+		return nil, gas, nil // B: nothing is done, no gas consumed
 	}
 
 	// Fail if we're trying to execute above the call depth limit
 	if evm.depth > int(params.CallCreateDepth) {
-		return nil, gas, ErrDepth
+		return nil, gas, ErrDepth // B: nothing is done, no gas consumed
 	}
 	// Fail if we're trying to transfer more than the available balance
 	if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value) {
-		return nil, gas, ErrInsufficientBalance
+		return nil, gas, ErrInsufficientBalance // B: nothing is done, no gas consumed
 	}
 
 	var (
@@ -214,7 +215,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	evm.Transfer(evm.StateDB, caller.Address(), to.Address(), value)
 	// Initialise a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.
-	contract := NewContract(caller, to, value, gas)
+	contract := NewContract(caller, to, value, gas) // B: deploy new contract, and assign the gas to the contract
 	contract.SetCallCode(&addr, evm.StateDB.GetCodeHash(addr), evm.StateDB.GetCode(addr))
 
 	// Even if the account has no code, we need to continue because it might be a precompile
@@ -235,11 +236,11 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	// when we're in homestead this also counts for code storage gas errors.
 	if err != nil {
 		evm.StateDB.RevertToSnapshot(snapshot)
-		if err != errExecutionReverted {
-			contract.UseGas(contract.Gas)
+		if err != errExecutionReverted { // B: If execution not reverted, then consume all the gas.
+			contract.UseGas(contract.Gas, false)
 		}
 	}
-	return ret, contract.Gas, err
+	return ret, contract.Gas, err // B: returns the bytecode, gas left, error?
 }
 
 // CallCode executes the contract associated with the addr with the given input
@@ -267,8 +268,9 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 		snapshot = evm.StateDB.Snapshot()
 		to       = AccountRef(caller.Address())
 	)
-	// Initialise a new contract and set the code that is to be used by the EVM.
-	// The contract is a scoped environment for this execution context only.
+	// initialise a new contract and set the code that is to be used by the
+	// EVM. The contract is a scoped environment for this execution context
+	// only.
 	contract := NewContract(caller, to, value, gas)
 	contract.SetCallCode(&addr, evm.StateDB.GetCodeHash(addr), evm.StateDB.GetCode(addr))
 
@@ -276,7 +278,7 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 	if err != nil {
 		evm.StateDB.RevertToSnapshot(snapshot)
 		if err != errExecutionReverted {
-			contract.UseGas(contract.Gas)
+			contract.UseGas(contract.Gas, false)
 		}
 	}
 	return ret, contract.Gas, err
@@ -309,7 +311,7 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	if err != nil {
 		evm.StateDB.RevertToSnapshot(snapshot)
 		if err != errExecutionReverted {
-			contract.UseGas(contract.Gas)
+			contract.UseGas(contract.Gas, false)
 		}
 	}
 	return ret, contract.Gas, err
@@ -332,8 +334,9 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 		to       = AccountRef(addr)
 		snapshot = evm.StateDB.Snapshot()
 	)
-	// Initialise a new contract and set the code that is to be used by the EVM.
-	// The contract is a scoped environment for this execution context only.
+	// Initialise a new contract and set the code that is to be used by the
+	// EVM. The contract is a scoped environment for this execution context
+	// only.
 	contract := NewContract(caller, to, new(big.Int), gas)
 	contract.SetCallCode(&addr, evm.StateDB.GetCodeHash(addr), evm.StateDB.GetCode(addr))
 
@@ -350,7 +353,7 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	if err != nil {
 		evm.StateDB.RevertToSnapshot(snapshot)
 		if err != errExecutionReverted {
-			contract.UseGas(contract.Gas)
+			contract.UseGas(contract.Gas, false)
 		}
 	}
 	return ret, contract.Gas, err
@@ -372,30 +375,35 @@ func (c *codeAndHash) Hash() common.Hash {
 func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address) ([]byte, common.Address, uint64, error) {
 	// Depth check execution. Fail if we're trying to execute above the
 	// limit.
+	// B: Depth error
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, common.Address{}, gas, ErrDepth
 	}
+	// B: Insufficient balance error
 	if !evm.CanTransfer(evm.StateDB, caller.Address(), value) {
 		return nil, common.Address{}, gas, ErrInsufficientBalance
 	}
+	// B: Creating a new transaction/block?, needs to get old nounce and set the nounce for the new txn/block?
 	nonce := evm.StateDB.GetNonce(caller.Address())
 	evm.StateDB.SetNonce(caller.Address(), nonce+1)
 
 	// Ensure there's no existing contract already at the designated address
+	// B: Checks if there is any contract at destination address, if there is, return error.
 	contractHash := evm.StateDB.GetCodeHash(address)
 	if evm.StateDB.GetNonce(address) != 0 || (contractHash != (common.Hash{}) && contractHash != emptyCodeHash) {
 		return nil, common.Address{}, 0, ErrContractAddressCollision
 	}
 	// Create a new account on the state
-	snapshot := evm.StateDB.Snapshot()
-	evm.StateDB.CreateAccount(address)
+	snapshot := evm.StateDB.Snapshot() // B: Snapshot returns an identifier for the current revision of the state.
+	evm.StateDB.CreateAccount(address) // B: creates a new account at the address (with balance at address carried over)
 	if evm.ChainConfig().IsEIP158(evm.BlockNumber) {
 		evm.StateDB.SetNonce(address, 1)
 	}
 	evm.Transfer(evm.StateDB, caller.Address(), address, value)
 
-	// Initialise a new contract and set the code that is to be used by the EVM.
-	// The contract is a scoped environment for this execution context only.
+	// initialise a new contract and set the code that is to be used by the
+	// EVM. The contract is a scoped environment for this execution context
+	// only.
 	contract := NewContract(caller, AccountRef(address), value, gas)
 	contract.SetCodeOptionalHash(&address, codeAndHash)
 
@@ -417,8 +425,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	// be stored due to not enough gas set an error and let it be handled
 	// by the error checking condition below.
 	if err == nil && !maxCodeSizeExceeded {
-		createDataGas := uint64(len(ret)) * params.CreateDataGas
-		if contract.UseGas(createDataGas) {
+		createDataGas := uint64(len(ret)) * params.CreateDataGas // CreateDataGas = 200
+		if contract.UseGas(createDataGas, disableGas) {
 			evm.StateDB.SetCode(address, ret)
 		} else {
 			err = ErrCodeStoreOutOfGas
@@ -431,7 +439,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	if maxCodeSizeExceeded || (err != nil && (evm.ChainConfig().IsHomestead(evm.BlockNumber) || err != ErrCodeStoreOutOfGas)) {
 		evm.StateDB.RevertToSnapshot(snapshot)
 		if err != errExecutionReverted {
-			contract.UseGas(contract.Gas)
+			contract.UseGas(contract.Gas, false)
 		}
 	}
 	// Assign err if contract code size exceeds the max while the err is still empty.

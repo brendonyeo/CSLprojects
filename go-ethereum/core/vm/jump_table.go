@@ -168,6 +168,34 @@ func newHomesteadInstructionSet() [256]operation {
 // that can be executed during the frontier phase.
 func newFrontierInstructionSet() [256]operation {
 	return [256]operation{
+		STOPGAS: {
+			execute:     opStopGas,
+			constantGas: 0,
+			minStack:    minStack(0, 0),
+			maxStack:    maxStack(0, 0),
+			valid:       true,
+		},
+		STARTGAS: {
+			execute:     opStartGas,
+			constantGas: 0,
+			minStack:    minStack(0, 0),
+			maxStack:    maxStack(0, 0),
+			valid:       true,
+		},
+		NOTHING: {
+			execute:     opNothing,
+			constantGas: 0,
+			minStack:    minStack(0, 0),
+			maxStack:    maxStack(0, 0),
+			valid:       true,
+		},
+		ADDCLONE: {
+			execute:     opAddClone,
+			constantGas: GasFastestStep,
+			minStack:    minStack(2, 1),
+			maxStack:    maxStack(2, 1),
+			valid:       true,
+		},
 		STOP: {
 			execute:     opStop,
 			constantGas: 0,
