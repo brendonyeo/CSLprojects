@@ -1,0 +1,131 @@
+miner.start()
+miner.start(4)
+miner.start(1)
+miner.stat(1)
+miner.start(1)
+miner.stop()
+clear
+var MyContract =eth.Contract("[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]osboxes@osboxes:~/Develop");
+var bytecode = "6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = MyContract.new({from:personal.listAccounts[0],data:bytecode,gas:5000000,value:0});
+var MyContract =eth.Contract('[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]');
+eth
+var MyContract =eth.contract('[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]');
+var bytecode = "6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = MyContract.new({from:personal.listAccounts[0],data:bytecode,gas:5000000,value:0});
+personal.accounts
+personal.listAccounts
+var instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+MyContract
+var instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+var instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:50000000});
+var instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:"50000000"});
+instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:"50000000"});
+console.log( bytecode)
+instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:"50000000"});
+MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:"50000000"});
+var ABI ='[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = eth.contract.new(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+var instance = new  eth.Contract(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+var instance = new web3.eth.Contract(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+var instance = new web3.eth.contract(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000,value:0});
+console.log(instance)
+console.log(instance.toString())
+miner.start(1)
+miner.stop()
+var ABI ='[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = web3.eth.contract.new(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+var ABI ='[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = new web3.eth.contract(ABI, {from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+miner.start(1)
+miner.stop()
+var MyContract =new web3.eth.Contract('[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]');
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var MyContract =new web3.eth.contract('[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]');
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance = MyContract.deploy({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+web3.eth
+MyContract
+var instance = MyContract.new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+var abi  = '[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance =web3.eth.contract.new(abi,{from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+web3.eth.contract
+web3.eth.Contract
+eth.Contract
+eth
+eth.contract
+eth.Contract
+eth.contract
+eth.contract.deploy
+eth.contract.new
+eth.contract()
+eth.contract().new
+var instance =web3.eth.contract(abi).new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+var abi  = '[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+var instance =web3.eth.contract(abi).new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+var createTx = {
+from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",
+data:bytecode,
+gas:5000000,
+};
+web3.eth.sendTransaction(createTx, (err, hash) => {
+        if (err) { 
+            console.log(err); return; 
+        }
+        // Log the tx, you can explore status manually with eth.getTransaction()
+        console.log('Contract creation tx: ' + hash);
+        // Wait for the transaction to be mined
+        while (receipt == null) {
+            receipt = web3.eth.getTransactionReceipt(hash);
+            // Simulate the sleep function
+            Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+        }
+        console.log('Contract address: ' + receipt.contractAddress);
+        console.log('Contract File: ' + contract);
+});
+var abi  = '[{"constant":false,"inputs":[{"name":"x","type":"uint256"}],"name":"f","outputs":[{"name":"r","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]';
+var bytecode = "0x6080604052348015600f57600080fd5b5060a78061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063b3de648b14602d575b600080fd5b605660048036036020811015604157600080fd5b8101908080359060200190929190505050606c565b6040518082815260200191505060405180910390f35b60005f6000548202905091905056fea165627a7a723058201ad5ce6e2ce600c8e12c96c90d17fe0093c17fcf32ba4233e739d2d7f12023fc0029";
+//var instance =web3.eth.contract(abi).new({from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",data:bytecode,gas:5000000});
+var createTx = {
+from:"0x2b71cc952c8e3dfe97a696cf5c5b29f8a07de3d8",
+data:bytecode,
+gas:5000000
+};
+web3.eth.sendTransaction(createTx, (err, hash) => {
+        if (err) { 
+            console.log(err); return; 
+        }
+        // Log the tx, you can explore status manually with eth.getTransaction()
+        console.log('Contract creation tx: ' + hash);
+        // Wait for the transaction to be mined
+        while (receipt == null) {
+            receipt = web3.eth.getTransactionReceipt(hash);
+            // Simulate the sleep function
+            Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+        }
+        console.log('Contract address: ' + receipt.contractAddress);
+        console.log('Contract File: ' + contract);
+});
+web3.eth.sendTransaction
+web3.eth.sendTransaction(createTx, function(err, hash)  {
+        if (err) { 
+            console.log(err); return; 
+        }
+        // Log the tx, you can explore status manually with eth.getTransaction()
+        console.log('Contract creation tx: ' + hash);
+        // Wait for the transaction to be mined
+        while (receipt == null) {
+            receipt = web3.eth.getTransactionReceipt(hash);
+            // Simulate the sleep function
+            Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+        }
+        console.log('Contract address: ' + receipt.contractAddress);
+        console.log('Contract File: ' + contract);
+});
+miner.start(1)
