@@ -1,3 +1,4 @@
 #!/bin/bash
-geth --datadir "/home/osboxes/Develop/Ethereum" removedb&&geth --datadir "/home/osboxes/Develop/Ethereum"  init "/home/osboxes/Develop/Ethereum/CustomGenisis.json"  
-geth --networkid 1900  --rpc -rpcaddr "0.0.0.0"  --rpcport "8546" --rpccorsdomain "*" --port "30303" --nodiscover  --rpcapi "db,eth,net,web3,miner,net,personal,net,txpool,admin" --datadir /home/osboxes/Develop/Ethereum --nat "any" --unlock 0 --password "pwd.txt"  --mine --miner.threads 1
+/Users/workato/brendon/CSLprojects/go-ethereum/build/bin/geth --datadir "/Users/workato/brendon/CSLprojects/Ethereum/datadir" removedb && /Users/workato/brendon/CSLprojects/go-ethereum/build/bin/geth --datadir "/Users/workato/brendon/CSLprojects/Ethereum/datadir"  init "/Users/workato/brendon/CSLprojects/Ethereum/CustomGenesis.json"
+/Users/workato/brendon/CSLprojects/go-ethereum/build/bin/geth account new --password "pwd.txt" --datadir /Users/workato/brendon/CSLprojects/Ethereum/datadir
+/Users/workato/brendon/CSLprojects/go-ethereum/build/bin/geth --networkid 1900  --rpc -rpcaddr "0.0.0.0"  --rpcport "8546" --rpccorsdomain "*" --port "30303" --nodiscover  --rpcapi "db,eth,net,web3,miner,net,personal,net,txpool,admin" --datadir /Users/workato/brendon/CSLprojects/Ethereum/datadir --nat "any" --unlock 0 --password "pwd.txt"  --allow-insecure-unlock console

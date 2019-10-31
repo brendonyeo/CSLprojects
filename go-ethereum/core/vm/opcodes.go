@@ -101,6 +101,8 @@ const (
 	NUMBER
 	DIFFICULTY
 	GASLIMIT
+	CHAINID     = 0x46
+	SELFBALANCE = 0x47
 )
 
 // 0x50 range - 'storage' and execution.
@@ -117,8 +119,6 @@ const (
 	MSIZE
 	GAS
 	JUMPDEST
-	NOTHING		// 0x5c
-	ADDCLONE	// 0x5d
 	STARTGAS 	= 0x5e
 	STOPGAS 	= 0x5f
 )
@@ -275,12 +275,14 @@ var opCodeToString = map[OpCode]string{
 	EXTCODEHASH:    "EXTCODEHASH",
 
 	// 0x40 range - block operations.
-	BLOCKHASH:  "BLOCKHASH",
-	COINBASE:   "COINBASE",
-	TIMESTAMP:  "TIMESTAMP",
-	NUMBER:     "NUMBER",
-	DIFFICULTY: "DIFFICULTY",
-	GASLIMIT:   "GASLIMIT",
+	BLOCKHASH:   "BLOCKHASH",
+	COINBASE:    "COINBASE",
+	TIMESTAMP:   "TIMESTAMP",
+	NUMBER:      "NUMBER",
+	DIFFICULTY:  "DIFFICULTY",
+	GASLIMIT:    "GASLIMIT",
+	CHAINID:     "CHAINID",
+	SELFBALANCE: "SELFBALANCE",
 
 	// 0x50 range - 'storage' and execution.
 	POP: "POP",
@@ -399,6 +401,8 @@ func (op OpCode) String() string {
 }
 
 var stringToOp = map[string]OpCode{
+	"STOPGAS":        STOPGAS,
+	"STARTGAS":       STARTGAS,
 	"STOP":           STOP,
 	"ADD":            ADD,
 	"MUL":            MUL,
@@ -434,6 +438,7 @@ var stringToOp = map[string]OpCode{
 	"CALLDATALOAD":   CALLDATALOAD,
 	"CALLDATASIZE":   CALLDATASIZE,
 	"CALLDATACOPY":   CALLDATACOPY,
+	"CHAINID":        CHAINID,
 	"DELEGATECALL":   DELEGATECALL,
 	"STATICCALL":     STATICCALL,
 	"CODESIZE":       CODESIZE,
@@ -450,6 +455,7 @@ var stringToOp = map[string]OpCode{
 	"NUMBER":         NUMBER,
 	"DIFFICULTY":     DIFFICULTY,
 	"GASLIMIT":       GASLIMIT,
+	"SELFBALANCE":    SELFBALANCE,
 	"POP":            POP,
 	"MLOAD":          MLOAD,
 	"MSTORE":         MSTORE,
@@ -511,8 +517,6 @@ var stringToOp = map[string]OpCode{
 	"DUP15":          DUP15,
 	"DUP16":          DUP16,
 	"SWAP1":          SWAP1,
-	"STOPGAS":        STOPGAS,
-	"STARTGAS":       STARTGAS,
 	"SWAP2":          SWAP2,
 	"SWAP3":          SWAP3,
 	"SWAP4":          SWAP4,

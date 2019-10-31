@@ -18,7 +18,7 @@ package vm
 
 import (
 	"math/big"
-
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -27,7 +27,7 @@ type ContractRef interface {
 	Address() common.Address
 }
 
-var disableGas bool = true // true means to disable
+var disableGas bool = false // true means to disable
 
 // AccountRef implements ContractRef.
 //
@@ -152,14 +152,19 @@ func (c *Contract) Caller() common.Address {
 
 // UseGas attempts the use gas and subtracts it and returns true on success
 func (c *Contract) UseGas(gas uint64, disableGas bool) (ok bool) {
-	if !disableGas { // B: if gas is enabled, go through normal process of reduction.
+	if disableGas {
+		fmt.Printf("(uint64=0) \n")
+	} else {
+		fmt.Printf("%s \n",gas)
+	}
+	if !disableGas { // If true, go through normal process of reduction.
 		if c.Gas < gas {
 			return false
 		}
 		c.Gas -= gas
 		return true
 	}
-	return true // B: else, straightaway return true without reducing gas available.
+	return true
 }
 
 // Address returns the contracts address
@@ -167,7 +172,7 @@ func (c *Contract) Address() common.Address {
 	return c.self.Address()
 }
 
-// Value returns the contracts value (sent to it from it's caller)
+// Value returns the contract's value (sent to it from it's caller)
 func (c *Contract) Value() *big.Int {
 	return c.value
 }

@@ -14,17 +14,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// ## No changes were made to this file ##.
-
 package core
 
 import (
 	"errors"
 	"math"
 	"math/big"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	vm "github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 )
@@ -32,8 +31,6 @@ import (
 var (
 	errInsufficientBalanceForGas = errors.New("insufficient balance to pay for gas")
 )
-
-var disableGas bool = true // true means to disable
 
 /*
 The State Transitioning Model
@@ -80,14 +77,13 @@ type Message interface {
 }
 
 // IntrinsicGas computes the 'intrinsic gas' for a message with the given data.
-func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error) {
+func IntrinsicGas(data []byte, contractCreation, isEIP155 bool, isEIP2028 bool) (uint64, error) {
 	// Set the starting gas for the raw transaction
-	// B: Amount of gas used should be the base gas cost + per byte of transaction data?
 	var gas uint64
-	if contractCreation && homestead {
-		gas = params.TxGasContractCreation // TxGasContractCreation uint64 = 53000
+	if contractCreation && isEIP155 {
+		gas = params.TxGasContractCreation
 	} else {
-		gas = params.TxGas // TxGas uint64 = 21000
+		gas = params.TxGas
 	}
 	// Bump the required gas by the amount of transactional data
 	if len(data) > 0 {
@@ -99,16 +95,17 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) (uint64, error)
 			}
 		}
 		// Make sure we don't exceed uint64 for all data combinations
-		if (math.MaxUint64-gas)/params.TxDataNonZeroGas < nz { // B: TxDataNonZeroGas uint64 = 68
-			// B: Takes the max amount of gas, minus what is already used.
-			// B: If the remaining gas (for the nonzero byte) is less than we require, throw error.
+		nonZeroGas := params.TxDataNonZeroGasFrontier
+		if isEIP2028 {
+			nonZeroGas = params.TxDataNonZeroGasEIP2028
+		}
+		if (math.MaxUint64-gas)/nonZeroGas < nz {
 			return 0, vm.ErrOutOfGas
 		}
-		gas += nz * params.TxDataNonZeroGas // B: Gas required (base + non-zero data)
+		gas += nz * nonZeroGas
+
 		z := uint64(len(data)) - nz
-		if (math.MaxUint64-gas)/params.TxDataZeroGas < z { // B: TxDataZeroGas uint64 = 4
-			// B: Takes the max amount of gas, minus what is already used.
-			// B: If the remaining gas (for the zero byte) is less than we require, throw error.
+		if (math.MaxUint64-gas)/params.TxDataZeroGas < z {
 			return 0, vm.ErrOutOfGas
 		}
 		gas += z * params.TxDataZeroGas
@@ -152,10 +149,10 @@ func (st *StateTransition) useGas(amount uint64, disableGas bool) error {
 	if st.gas < amount {
 		return vm.ErrOutOfGas
 	}
-	// B: Can comment out this section?
 	if !disableGas {
 		st.gas -= amount
 	}
+
 	return nil
 }
 
@@ -197,14 +194,16 @@ func (st *StateTransition) TransitionDb() (ret []byte, usedGas uint64, failed bo
 	msg := st.msg
 	sender := vm.AccountRef(msg.From())
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
+	istanbul := st.evm.ChainConfig().IsIstanbul(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 
 	// Pay intrinsic gas
-	gas, err := IntrinsicGas(st.data, contractCreation, homestead)
+	gas, err := IntrinsicGas(st.data, contractCreation, homestead, istanbul)
+	fmt.Printf("[ Consumed gas StateTransition: %d ]\n", gas)
 	if err != nil {
 		return nil, 0, false, err
 	}
-	if err = st.useGas(gas, disableGas); err != nil {
+	if err = st.useGas(gas, false); err != nil {
 		return nil, 0, false, err
 	}
 

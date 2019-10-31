@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// ## No changes were made to this file ##.
-
 package vm
 
 import (
@@ -25,29 +23,22 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Config are the configuration options for the Interpreter
 type Config struct {
-	// Debug enabled debugging Interpreter options
-	Debug bool
-	// Tracer is the op code logger
-	Tracer Tracer
-	// NoRecursion disabled Interpreter call, callcode,
-	// delegate call and create.
-	NoRecursion bool
-	// Enable recording of SHA3/keccak preimages
-	EnablePreimageRecording bool
-	// JumpTable contains the EVM instruction table. This
-	// may be left uninitialised and will be set to the default
-	// table.
-	JumpTable [256]operation // B: Declaration found in core/vm/jump_table.go
+	Debug                   bool   // Enables debugging
+	Tracer                  Tracer // Opcode logger
+	NoRecursion             bool   // Disables call, callcode, delegate call and create
+	EnablePreimageRecording bool   // Enables recording of SHA3/keccak preimages
 
-	// Type of the EWASM interpreter
-	EWASMInterpreter string
-	// Type of the EVM interpreter
-	EVMInterpreter string
+	JumpTable [256]operation // EVM instruction table, automatically populated if unset
+
+	EWASMInterpreter string // External EWASM interpreter options
+	EVMInterpreter   string // External EVM interpreter options
+
+	ExtraEips []int // Additional EIPS that are to be enabled
 }
 
 // Interpreter is used to run Ethereum based contracts and will utilise the
@@ -82,9 +73,8 @@ type keccakState interface {
 
 // EVMInterpreter represents an EVM interpreter
 type EVMInterpreter struct {
-	evm      *EVM
-	cfg      Config
-	gasTable params.GasTable
+	evm *EVM
+	cfg Config
 
 	intPool *intPool
 
@@ -101,22 +91,36 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 	// the jump table was initialised. If it was not
 	// we'll set the default jump table.
 	if !cfg.JumpTable[STOP].valid {
+		var jt JumpTable
 		switch {
-		case evm.ChainConfig().IsConstantinople(evm.BlockNumber):
-			cfg.JumpTable = constantinopleInstructionSet
-		case evm.ChainConfig().IsByzantium(evm.BlockNumber):
-			cfg.JumpTable = byzantiumInstructionSet
-		case evm.ChainConfig().IsHomestead(evm.BlockNumber):
-			cfg.JumpTable = homesteadInstructionSet
+		case evm.chainRules.IsIstanbul:
+			jt = istanbulInstructionSet
+		case evm.chainRules.IsConstantinople:
+			jt = constantinopleInstructionSet
+		case evm.chainRules.IsByzantium:
+			jt = byzantiumInstructionSet
+		case evm.chainRules.IsEIP158:
+			jt = spuriousDragonInstructionSet
+		case evm.chainRules.IsEIP150:
+			jt = tangerineWhistleInstructionSet
+		case evm.chainRules.IsHomestead:
+			jt = homesteadInstructionSet
 		default:
-			cfg.JumpTable = frontierInstructionSet
+			jt = frontierInstructionSet
 		}
+		for i, eip := range cfg.ExtraEips {
+			if err := EnableEIP(eip, &jt); err != nil {
+				// Disable it, so caller can check if it's activated or not
+				cfg.ExtraEips = append(cfg.ExtraEips[:i], cfg.ExtraEips[i+1:]...)
+				log.Error("EIP activation failed", "eip", eip, "error", err)
+			}
+		}
+		cfg.JumpTable = jt
 	}
 
 	return &EVMInterpreter{
-		evm:      evm,
-		cfg:      cfg,
-		gasTable: evm.ChainConfig().GasTable(evm.BlockNumber),
+		evm: evm,
+		cfg: cfg,
 	}
 }
 
@@ -179,10 +183,8 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		defer func() {
 			if err != nil {
 				if !logged {
-					// B: if not logged then log?
 					in.cfg.Tracer.CaptureState(in.evm, pcCopy, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 				} else {
-					// B: if logged then record a fault?
 					in.cfg.Tracer.CaptureFault(in.evm, pcCopy, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 				}
 			}
@@ -195,18 +197,16 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	for atomic.LoadInt32(&in.evm.abort) == 0 {
 		if in.cfg.Debug {
 			// Capture pre-execution values for tracing.
-			// B: Just making a copy of all the data, logged = false since not logged
 			logged, pcCopy, gasCopy = false, pc, contract.Gas
 		}
 
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
-		op = contract.GetOp(pc) // B: get current operation (code)
-                fmt.Printf("PRINT OPCODE:%s\n",op)
+		op = contract.GetOp(pc)
+		fmt.Printf("OPCODE: %s ",op)
 		operation := in.cfg.JumpTable[op]
-		if !operation.valid { // B: checking to see if it is a valid opcode, by checking against a bool variable.
-			 fmt.Printf("invalid opcode 0x%x\n", []byte{byte(op)})
-                         return nil, fmt.Errorf("invalid opcode 0x%x", int(op))
+		if !operation.valid {
+			return nil, fmt.Errorf("invalid opcode 0x%x", int(op))
 		}
 		// Validate stack
 		if sLen := stack.len(); sLen < operation.minStack {
@@ -226,6 +226,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			}
 		}
 		// Static portion of gas
+		cost = operation.constantGas // For tracing
 		if !contract.UseGas(operation.constantGas, disableGas) {
 			return nil, ErrOutOfGas
 		}
@@ -250,19 +251,19 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		// consume the gas and return an error if not enough gas is available.
 		// cost is explicitly set so that the capture state defer method can get the proper cost
 		if operation.dynamicGas != nil {
-			cost, err = operation.dynamicGas(in.gasTable, in.evm, contract, stack, mem, memorySize)
-			if err != nil || !contract.UseGas(cost, disableGas) { // B: declaration in core/vm/contract.go, false means failure.
-				// B: enter this loop if there is error or not enough gas
-				// B: core/vm/contract.go > func (c *Contract) UseGas(gas uint64) (ok bool)
+			fmt.Printf("OPCODE: %s ",op)
+			var dynamicCost uint64
+			dynamicCost, err = operation.dynamicGas(in.evm, contract, stack, mem, memorySize)
+			cost += dynamicCost // total cost, for debug tracing
+			if err != nil || !contract.UseGas(dynamicCost, disableGas) {
 				return nil, ErrOutOfGas
 			}
-		} // B: No error
+		}
 		if memorySize > 0 {
 			mem.Resize(memorySize)
 		}
 
 		if in.cfg.Debug {
-			// B: Might the current state affect?
 			in.cfg.Tracer.CaptureState(in.evm, pc, op, gasCopy, cost, mem, stack, contract, in.evm.depth, err)
 			logged = true
 		}
@@ -276,16 +277,14 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 		// if the operation clears the return data (e.g. it has returning data)
 		// set the last return to the result of the operation.
-		// B: if operation.returns bool flag is true, means there's return values
-		// B: hence retrieve return data and assign it.
 		if operation.returns {
 			in.returnData = res
 		}
 
 		switch {
-		case err != nil: // B: if error
+		case err != nil:
 			return nil, err
-		case operation.reverts: // B: to find out whether an error will revert, and if so, why we need check err then revert?
+		case operation.reverts:
 			return res, errExecutionReverted
 		case operation.halts:
 			return res, nil

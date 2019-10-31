@@ -38,24 +38,12 @@ var (
 )
 
 func opStopGas(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	disableGas = true // B: True means to disable, stops counting of gas.
+	disableGas = true // True means to disable, stops counting of gas.
 	return nil, nil
 }
 
 func opStartGas(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	disableGas = false // B: False means to enable, starts counting of gas.
-	return nil, nil
-}
-
-func opNothing(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	return nil, nil
-}
-
-func opAddClone(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
-	x, y := stack.pop(), stack.peek()
-	math.U256(y.Add(x, y))
-
-	interpreter.intPool.put(x)
+	disableGas = false // False means to enable, starts counting of gas.
 	return nil, nil
 }
 
@@ -714,9 +702,9 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memor
 		value        = stack.pop()
 		offset, size = stack.pop(), stack.pop()
 		input        = memory.Get(offset.Int64(), size.Int64())
-		gas          = contract.Gas // B: Duplicating initial gas
+		gas          = contract.Gas
 	)
-	if interpreter.evm.ChainConfig().IsEIP150(interpreter.evm.BlockNumber) {
+	if interpreter.evm.chainRules.IsEIP150 {
 		gas -= gas / 64
 	}
 
@@ -726,14 +714,14 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memor
 	// homestead we must check for CodeStoreOutOfGasError (homestead only
 	// rule) and treat as an error, if the ruleset is frontier we must
 	// ignore this error and pretend the operation was successful.
-	if interpreter.evm.ChainConfig().IsHomestead(interpreter.evm.BlockNumber) && suberr == ErrCodeStoreOutOfGas {
+	if interpreter.evm.chainRules.IsHomestead && suberr == ErrCodeStoreOutOfGas {
 		stack.push(interpreter.intPool.getZero())
 	} else if suberr != nil && suberr != ErrCodeStoreOutOfGas {
 		stack.push(interpreter.intPool.getZero())
 	} else {
 		stack.push(interpreter.intPool.get().SetBytes(addr.Bytes()))
 	}
-	if !disableGas { // B: disableGas = true, no gas is reduced.
+	if !disableGas { // disableGas = true, no gas is reduced.
 		contract.Gas += returnGas
 	}
 	interpreter.intPool.put(value, offset, size)
@@ -763,7 +751,7 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memo
 	} else {
 		stack.push(interpreter.intPool.get().SetBytes(addr.Bytes()))
 	}
-	if !disableGas {// B: disableGas = true, no gas is reduced.
+	if !disableGas { // disableGas = true, no gas is reduced.
 		contract.Gas += returnGas
 	}
 	interpreter.intPool.put(endowment, offset, size, salt)
@@ -777,7 +765,7 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memo
 func opCall(pc *uint64, interpreter *EVMInterpreter, contract *Contract, memory *Memory, stack *Stack) ([]byte, error) {
 	// Pop gas. The actual gas in interpreter.evm.callGasTemp.
 	interpreter.intPool.put(stack.pop())
-	gas := interpreter.evm.callGasTemp // B: just calculating gas required?
+	gas := interpreter.evm.callGasTemp
 	// Pop other call parameters.
 	addr, value, inOffset, inSize, retOffset, retSize := stack.pop(), stack.pop(), stack.pop(), stack.pop(), stack.pop(), stack.pop()
 	toAddr := common.BigToAddress(addr)
